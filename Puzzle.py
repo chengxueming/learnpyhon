@@ -1,5 +1,6 @@
 import pygame, sys, random
 from pygame.locals import *
+from time import sleep
 
 # 一些常量
 WINDOWWIDTH = 500
@@ -100,6 +101,30 @@ finish = False
 
 gameBoard, blackCell = newGameBoard()
 
+def drawMe():
+    windowSurface.fill(BACKGROUNDCOLOR)
+
+    for i in range(CELLNUMS):
+        rowDst = int(i / VHNUMS)
+        colDst = int(i % VHNUMS)
+        rectDst = pygame.Rect(colDst * cellWidth, rowDst * cellHeight, cellWidth, cellHeight)
+
+        if gameBoard[i] == -1:
+            continue
+
+        rowArea = int(gameBoard[i] / VHNUMS)
+        colArea = int(gameBoard[i] % VHNUMS)
+        rectArea = pygame.Rect(colArea * cellWidth, rowArea * cellHeight, cellWidth, cellHeight)
+        windowSurface.blit(gameImage, rectDst, rectArea)
+
+    for i in range(VHNUMS + 1):
+        pygame.draw.line(windowSurface, BLACK, (i * cellWidth, 0), (i * cellWidth, gameRect.height))
+    for i in range(VHNUMS + 1):
+        pygame.draw.line(windowSurface, BLACK, (0, i * cellHeight), (gameRect.width, i * cellHeight))
+
+    pygame.display.update()
+    mainClock.tick(FPS)
+
 def calculate(gB,end):
     def moveRight(board, blackCell):
         if blackCell % VHNUMS == 0:
@@ -180,7 +205,7 @@ def calculate(gB,end):
             break
         count = count + 1
     return result(key_common,hash_map_n,hash_map_r)
-
+DIRCT_MAP = {"UP":moveUp,"DOWN":moveDown,"RIGHT":moveRight,"LEFT":moveLeft}
 # 游戏主循环
 while True:
     for event in pygame.event.get():
@@ -195,8 +220,17 @@ while True:
                 blackCell = moveRight(gameBoard, blackCell)
             if event.key == K_UP or event.key == ord('w'):
                 blackCell = moveUp(gameBoard, blackCell)
+            # if event.key == K_DOWN or event.key == ord('s'):
+            #     blackCell = moveDown(gameBoard, blackCell)
             if event.key == K_DOWN or event.key == ord('s'):
-                blackCell = moveDown(gameBoard, blackCell)
+                end = [x for x in range(0, 8)]
+                end.append(-1)
+                res = calculate(gameBoard,end)
+                for x in res:
+                    blackCell = DIRCT_MAP[x](gameBoard, blackCell)
+                    drawMe()
+                    sleep(0.5)
+
         if event.type == MOUSEBUTTONDOWN and event.button == 1:
             x, y = pygame.mouse.get_pos()
             col = int(x / cellWidth)
@@ -211,25 +245,4 @@ while True:
         gameBoard[blackCell] = CELLNUMS - 1
         finish = True
 
-    windowSurface.fill(BACKGROUNDCOLOR)
-
-    for i in range(CELLNUMS):
-        rowDst = int(i / VHNUMS)
-        colDst = int(i % VHNUMS)
-        rectDst = pygame.Rect(colDst * cellWidth, rowDst * cellHeight, cellWidth, cellHeight)
-
-        if gameBoard[i] == -1:
-            continue
-
-        rowArea = int(gameBoard[i] / VHNUMS)
-        colArea = int(gameBoard[i] % VHNUMS)
-        rectArea = pygame.Rect(colArea * cellWidth, rowArea * cellHeight, cellWidth, cellHeight)
-        windowSurface.blit(gameImage, rectDst, rectArea)
-
-    for i in range(VHNUMS + 1):
-        pygame.draw.line(windowSurface, BLACK, (i * cellWidth, 0), (i * cellWidth, gameRect.height))
-    for i in range(VHNUMS + 1):
-        pygame.draw.line(windowSurface, BLACK, (0, i * cellHeight), (gameRect.width, i * cellHeight))
-
-    pygame.display.update()
-    mainClock.tick(FPS)
+    drawMe()
