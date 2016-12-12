@@ -1,3 +1,4 @@
+#URL:http://www.jb51.net/article/66166.htm
 import pygame, sys, random
 from pygame.locals import *
 from time import sleep
@@ -240,7 +241,6 @@ while True:
                             index == blackCell - 1 or index == blackCell + 1 or index == blackCell - VHNUMS or index == blackCell + VHNUMS):
                 gameBoard[blackCell], gameBoard[index] = gameBoard[index], gameBoard[blackCell]
                 blackCell = index
-            print(gameBoard," ",blackCell)
     if (isFinished(gameBoard, blackCell)):
         gameBoard[blackCell] = CELLNUMS - 1
         finish = True
